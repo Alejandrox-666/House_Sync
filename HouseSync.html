@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>HouseSync · Tareas del hogar en pareja</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: #f4f6fa;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, sans-serif;
+      padding: 2rem 1.5rem;
+      color: #1e2a3e;
+    }
+
+    .app-container {
+      max-width: 880px;
+      margin: 0 auto;
+    }
+
+    /* header */
+    .header {
+      margin-bottom: 2rem;
+      text-align: center;
+    }
+
+    .header h1 {
+      font-size: 1.9rem;
+      font-weight: 550;
+      letter-spacing: -0.3px;
+      background: linear-gradient(135deg, #1f3b4c, #2c5a6e);
+      background-clip: text;
+      -webkit-background-clip: text;
+      color: transparent;
+      display: inline-block;
+    }
+
+    .header p {
+      margin-top: 0.5rem;
+      color: #4a6a85;
+      font-size: 0.85rem;
+      font-weight: 500;
+      letter-spacing: 0.3px;
+      border-bottom: 1px solid #e2e8f0;
+      display: inline-block;
+      padding-bottom: 0.3rem;
+    }
+
+    /* estadísticas con monitoreo individual */
+    .stats-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      margin-bottom: 2rem;
+      justify-content: space-between;
+    }
+
+    .stat-card {
+      background: white;
+      flex: 1;
+      padding: 0.8rem 0.5rem;
+      border-radius: 24px;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02), 0 1px 2px rgba(0, 0, 0, 0.03);
+      text-align: center;
+      border: 1px solid #eef2f6;
+      min-width: 100px;
+    }
+
+    .stat-number {
+      font-size: 1.7rem;
+      font-weight: 650;
+      color: #1f3b4c;
+      line-height: 1.2;
+    }
+
+    .stat-label {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: #6c8db0;
+      margin-top: 0.2rem;
+    }
+
+    /* tarjeta de monitoreo de pareja */
+    .monitor-card {
+      background: #ffffffec;
+      border-radius: 28px;
+      padding: 1rem 1.3rem;
+      margin-bottom: 1.8rem;
+      border: 1px solid #e9edf2;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.02);
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .monitor-title {
+      font-weight: 500;
+      font-size: 0.8rem;
+      color: #3a617b;
+      letter-spacing: 0.5px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .progress-badge {
+      background: #eef2ff;
+      padding: 0.4rem 1rem;
+      border-radius: 80px;
+      font-size: 0.75rem;
+      font-weight: 500;
+    }
+
+    .progress-badge span {
+      font-weight: 700;
+      color: #1f3b4c;
+    }
+
+    .member-stats {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .member-stat {
+      font-size: 0.75rem;
+      background: #f8fafc;
+      padding: 0.3rem 0.9rem;
+      border-radius: 40px;
+      color: #2c5a6e;
+    }
+
+    /* form */
+    .task-form {
+      background: white;
+      padding: 1.2rem 1.5rem;
+      border-radius: 28px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.02), 0 1px 2px rgba(0, 0, 0, 0.05);
+      margin-bottom: 2rem;
+      border: 1px solid #eef2f8;
+    }
+
+    .form-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.8rem;
+      align-items: flex-end;
+    }
+
+    .input-group {
+      flex: 2;
+      min-width: 150px;
+    }
+
+    .input-group label {
+      display: block;
+      font-size: 0.7rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      color: #5e7a93;
+      margin-bottom: 0.3rem;
+      letter-spacing: 0.3px;
+    }
+
+    .input-group input, .input-group select {
+      width: 100%;
+      padding: 0.7rem 0.9rem;
+      border: 1px solid #e2e8f0;
+      border-radius: 20px;
+      font-size: 0.9rem;
+      background: #ffffff;
+      font-family: inherit;
+      color: #1e2a3e;
+    }
+
+    .input-group input:focus, .input-group select:focus {
+      outline: none;
+      border-color: #9bb7d4;
+      box-shadow: 0 0 0 2px rgba(44, 90, 110, 0.1);
+    }
+
+    .btn-add {
+      background: #2c5a6e;
+      border: none;
+      padding: 0.7rem 1.4rem;
+      border-radius: 32px;
+      font-weight: 500;
+      color: white;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-family: inherit;
+    }
+
+    .btn-add:hover {
+      background: #1f4456;
+      transform: translateY(-1px);
+    }
+
+    .tasks-section h2 {
+      font-size: 1.2rem;
+      font-weight: 500;
+      margin-bottom: 1rem;
+      padding-left: 0.3rem;
+      color: #1f3b4c;
+    }
+
+    .tasks-list {
+      list-style: none;
+      margin-bottom: 2rem;
+    }
+
+    .task-item {
+      background: white;
+      border-radius: 20px;
+      padding: 0.8rem 1rem;
+      margin-bottom: 0.7rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 0.8rem;
+      border: 1px solid #eef2f8;
+      transition: 0.1s;
+    }
+
+    .task-info {
+      display: flex;
+      align-items: center;
+      gap: 0.9rem;
+      flex-wrap: wrap;
+      flex: 3;
+    }
+
+    .task-check {
+      transform: scale(1.1);
+      accent-color: #2c7a4d;
+      cursor: pointer;
+    }
+
+    .task-text {
+      font-weight: 500;
+      font-size: 0.95rem;
+      color: #1e293b;
+    }
+
+    .task-completed .task-text {
+      text-decoration: line-through;
+      color: #94a3b8;
+    }
+
+    .task-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.6rem;
+      align-items: center;
+      font-size: 0.7rem;
+    }
+
+    .badge-assignee {
+      background: #eef2ff;
+      padding: 0.2rem 0.7rem;
+      border-radius: 30px;
+      color: #1f3b4c;
+      font-weight: 500;
+    }
+
+    .badge-date {
+      background: #f1f5f9;
+      padding: 0.2rem 0.7rem;
+      border-radius: 30px;
+      color: #4b6b8f;
+    }
+
+    .task-actions .delete-btn {
+      background: none;
+      border: none;
+      font-size: 1.2rem;
+      cursor: pointer;
+      color: #bcccd9;
+      transition: 0.2s;
+    }
+
+    .delete-btn:hover {
+      color: #e26d6d;
+    }
+
+    .ideas-section {
+      margin-top: 1rem;
+      background: #ffffffd9;
+      border-radius: 24px;
+      padding: 1rem 1.2rem;
+      border: 1px solid #edf2f7;
+    }
+
+    .ideas-title {
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      color: #5e7c97;
+      margin-bottom: 0.7rem;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .ideas-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.7rem;
+    }
+
+    .idea-chip {
+      background: #f1f5f9;
+      padding: 0.4rem 1rem;
+      border-radius: 40px;
+      font-size: 0.75rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      border: 1px solid #e2e8f0;
+      color: #2d4a6e;
+    }
+
+    .idea-chip:hover {
+      background: #e6edf6;
+      transform: scale(0.96);
+    }
+
+    hr {
+      margin: 0.8rem 0;
+      border: none;
+      border-top: 1px solid #eef2f8;
+    }
+
+    footer {
+      text-align: center;
+      font-size: 0.75rem;
+      color: #8ba0bc;
+      margin-top: 2rem;
+      font-style: italic;
+    }
+
+    @media (max-width: 600px) {
+      body { padding: 1rem; }
+      .form-row { flex-direction: column; align-items: stretch; }
+      .task-info { flex-direction: column; align-items: flex-start; }
+    }
+  </style>
+</head>
+<body>
+<div class="app-container">
+  <div class="header">
+    <h1>🏡 HouseSync</h1>
+    <p>GESTIONAR TAREAS DIARIAS A.A</p>
+  </div>
+
+  <!-- Monitoreo en pareja: Alejandro + Camila -->
+  <div class="monitor-card">
+    <div class="monitor-title">📊 monitor de equipo · cooperación activa</div>
+    <div class="member-stats">
+      <div class="member-stat" id="alejandroStat">Alejandro: 0 tareas</div>
+      <div class="member-stat" id="camilaStat">Camila: 0 tareas</div>
+      <div class="member-stat" id="bothStat">👫 Ambos: 0 tareas</div>
+    </div>
+    <div class="progress-badge" id="productivityBadge">✨ synergy ✨</div>
+  </div>
+
+  <div class="stats-row" id="statsContainer">
+    <div class="stat-card"><div class="stat-number" id="totalTasks">0</div><div class="stat-label">total tareas</div></div>
+    <div class="stat-card"><div class="stat-number" id="pendingTasks">0</div><div class="stat-label">pendientes</div></div>
+    <div class="stat-card"><div class="stat-number" id="completedTasks">0</div><div class="stat-label">completadas</div></div>
+  </div>
+
+  <div class="task-form">
+    <div class="form-row">
+      <div class="input-group" style="flex:3">
+        <label>📋 tarea</label>
+        <input type="text" id="taskNameInput" placeholder="Ej: Limpiar cocina, regar plantas..." autocomplete="off">
+      </div>
+      <div class="input-group">
+        <label>👥 responsable</label>
+        <select id="assigneeSelect">
+          <option value="Alejandro">🙋 Alejandro</option>
+          <option value="Camila">👤 Camila</option>
+          <option value="Ambos">👩‍❤️‍👨 Ambos</option>
+        </select>
+      </div>
+      <div class="input-group">
+        <label>📅 fecha (opcional)</label>
+        <input type="date" id="dueDateInput">
+      </div>
+      <button class="btn-add" id="addTaskBtn">+ agregar tarea</button>
+    </div>
+  </div>
+
+  <div class="tasks-section">
+    <h2>📋 lista de tareas · orden por hacer</h2>
+    <ul id="tasksList" class="tasks-list">
+      <li style="text-align: center; color: #94a3b8; padding: 1.5rem;">✨ Agrega tu primera tarea del hogar ✨</li>
+    </ul>
+  </div>
+
+  <div class="ideas-section">
+    <div class="ideas-title">
+      💡 ideas rápidas
+    </div>
+    <div class="ideas-grid" id="ideasContainer"></div>
+    <hr>
+    <div style="font-size: 0.7rem; color: #6c8db0; text-align: right;">Agregar idea rápida</div>
+  </div>
+  <footer>contigo, nuestro amor también se nota en los detalles</footer>
+</div>
+
+<script>
+  // ---------- MODELO DE DATOS ----------
+  // cada tarea guarda: id, nombre, assignee (Alejandro/Camila/Ambos), dueDate, completed, createdAt, completedBy (quien la marcó como hecha)
+  let tasks = [];
+
+  // nombres finales
+  const PARTNER_A = "Alejandro";
+  const PARTNER_B = "Camila";
+  
+  // funciones auxiliares de fechas para ejemplos
+  function getDateOffset(days) {
+    const d = new Date();
+    d.setDate(d.getDate() + days);
+    return d.toISOString().split('T')[0];
+  }
+
+  // Cargar desde localStorage
+  function loadFromStorage() {
+    const stored = localStorage.getItem("houseSyncTasks");
+    if (stored) {
+      try {
+        tasks = JSON.parse(stored);
+        // asegurar compatibilidad: si alguna tarea no tiene campo completedBy (versiones anteriores) se asigna null
+        tasks = tasks.map(t => ({ ...t, completedBy: t.completedBy || null }));
+      } catch(e) { tasks = []; }
+    }
+    if (!tasks || tasks.length === 0) {
+      // ejemplos iniciales con responsables ajustados: Alejandro, Camila, Ambos. y eliminamos "sacar mascota" por cocinar almuerzo
+      tasks = [
+        { id: Date.now() + 1, name: "Sacar la basura", assignee: "Ambos", dueDate: "", completed: false, createdAt: new Date().toISOString(), completedBy: null },
+        { id: Date.now() + 2, name: "Limpiar baño", assignee: PARTNER_A, dueDate: getDateOffset(2), completed: false, createdAt: new Date().toISOString(), completedBy: null },
+        { id: Date.now() + 3, name: "Pasar aspiradora", assignee: PARTNER_B, dueDate: "", completed: true, createdAt: new Date().toISOString(), completedBy: PARTNER_B },
+        { id: Date.now() + 4, name: "Regar plantas", assignee: "Ambos", dueDate: getDateOffset(1), completed: false, createdAt: new Date().toISOString(), completedBy: null },
+        { id: Date.now() + 5, name: "Cocinar almuerzo", assignee: PARTNER_A, dueDate: "", completed: false, createdAt: new Date().toISOString(), completedBy: null },
+        { id: Date.now() + 6, name: "Hacer lista compras", assignee: PARTNER_B, dueDate: "", completed: true, createdAt: new Date().toISOString(), completedBy: PARTNER_B }
+      ];
+    }
+  }
+
+  function saveToStorage() {
+    localStorage.setItem("houseSyncTasks", JSON.stringify(tasks));
+  }
+
+  // agregar tarea nueva
+  function addTask(name, assignee, dueDate) {
+    if (!name.trim()) return false;
+    const newTask = {
+      id: Date.now(),
+      name: name.trim(),
+      assignee: assignee,
+      dueDate: dueDate || "",
+      completed: false,
+      createdAt: new Date().toISOString(),
+      completedBy: null
+    };
+    tasks.unshift(newTask);
+    saveToStorage();
+    renderAll();
+    return true;
+  }
+
+  // toggle completado con registro de quién completa la tarea (cuando se marca desde UI)
+  function toggleTaskCompletion(taskId) {
+    const task = tasks.find(t => t.id == taskId);
+    if (task) {
+      if (!task.completed) {
+        // al marcar como completada, simulamos que quien la completa es el usuario actual? 
+        // Para interactividad real, la app asume que el que marca el checkbox es la persona que realizó la acción.
+        // Mostraremos un selector simple para elegir quién la completó? Por simplicidad y transparencia,
+        // al marcar la tarea, la app asignará completedBy según el responsable asignado (por defecto),
+        // pero para reflejar tareas de ambos, si es "Ambos" preguntaremos con un pequeño diálogo elegante? 
+        // Mejor: Cuando la tarea es de ambos, al marcar se solicita quién la completó (Alejandro o Camila), para monitoreo real.
+        // Añadimos interacción justa.
+        if (task.assignee === "Ambos") {
+          let quien = prompt("📌 ¿Quién completó esta tarea? (Escribe 'Alejandro' o 'Camila')", "Alejandro");
+          if (quien && (quien.toLowerCase() === "alejandro" || quien.toLowerCase() === "camila")) {
+            const nombreCorrecto = quien.charAt(0).toUpperCase() + quien.slice(1).toLowerCase();
+            if (nombreCorrecto === PARTNER_A || nombreCorrecto === PARTNER_B) {
+              task.completedBy = nombreCorrecto;
+            } else {
+              task.completedBy = "Alejandro"; // fallback
+            }
+          } else {
+            task.completedBy = "Alejandro";
+          }
+        } else {
+          // tarea asignada individualmente, quien la completa es el mismo asignado
+          task.completedBy = task.assignee;
+        }
+        task.completed = true;
+      } else {
+        // desmarcar tarea: reiniciamos completedBy
+        task.completed = false;
+        task.completedBy = null;
+      }
+      saveToStorage();
+      renderAll();
+    }
+  }
+
+  function deleteTask(taskId) {
+    tasks = tasks.filter(t => t.id != taskId);
+    saveToStorage();
+    renderAll();
+  }
+
+  // estadísticas completas + monitoreo individual
+  function renderStatsAndMonitoring() {
+    const total = tasks.length;
+    const pending = tasks.filter(t => !t.completed).length;
+    const completed = tasks.filter(t => t.completed).length;
+    document.getElementById("totalTasks").innerText = total;
+    document.getElementById("pendingTasks").innerText = pending;
+    document.getElementById("completedTasks").innerText = completed;
+
+    // monitoreo: tareas completadas por Alejandro, Camila, y en colaboración
+    let alejandroCompleted = 0;
+    let camilaCompleted = 0;
+    let bothCompleted = 0; // tareas completadas con asignación "Ambos" (sin contar individual)
+    tasks.forEach(t => {
+      if (t.completed) {
+        if (t.completedBy === PARTNER_A) alejandroCompleted++;
+        else if (t.completedBy === PARTNER_B) camilaCompleted++;
+        else if (t.assignee === "Ambos" && !t.completedBy) {} // caso raro
+      }
+      // adicionalmente, contamos tareas completadas que originalmente eran de ambos y se completaron por alguien, ya están en los contadores anteriores.
+      // también podemos mostrar tareas de ambos completadas en colaboración pero se refleja en el badge
+    });
+    // Tareas que fueron asignadas a ambos y completadas (independiente de quién)
+    const bothAssignCompleted = tasks.filter(t => t.completed && t.assignee === "Ambos").length;
+    document.getElementById("alejandroStat").innerHTML = `${PARTNER_A}: ${alejandroCompleted} tareas 🧹`;
+    document.getElementById("camilaStat").innerHTML = `${PARTNER_B}: ${camilaCompleted} tareas 🧽`;
+    document.getElementById("bothStat").innerHTML = `👫 Ambos: ${bothAssignCompleted} tareas en conjunto`;
+    const synergy = (alejandroCompleted + camilaCompleted + bothAssignCompleted) || 0;
+    document.getElementById("productivityBadge").innerHTML = synergy > 3 ? "🔥 equipo activo" : (synergy > 0 ? "✨ cooperación ✨" : "🌱 primer paso");
+  }
+
+  function formatDueDate(dateString) {
+    if (!dateString) return "sin fecha";
+    const today = new Date();
+    today.setHours(0,0,0,0);
+    const due = new Date(dateString);
+    due.setHours(0,0,0,0);
+    const diffDays = Math.ceil((due - today) / (1000 * 60 * 60 * 24));
+    if (diffDays === 0) return "📅 hoy";
+    if (diffDays === 1) return "📅 mañana";
+    if (diffDays < 0) return "⏰ vencida";
+    return `📅 ${due.toLocaleDateString('es', {day:'numeric', month:'short'})}`;
+  }
+
+  function renderTasksList() {
+    const container = document.getElementById("tasksList");
+    if (!tasks.length) {
+      container.innerHTML = '<li style="text-align: center; color: #94a3b8; padding: 1.5rem;">🧹 Todo en calma — agrega tareas para organizar 🧽</li>';
+      return;
+    }
+    const sorted = [...tasks].sort((a,b) => {
+      if (a.completed !== b.completed) return a.completed ? 1 : -1;
+      return b.createdAt.localeCompare(a.createdAt);
+    });
+    container.innerHTML = "";
+    for (const task of sorted) {
+      const li = document.createElement("li");
+      li.className = "task-item";
+      if (task.completed) li.classList.add("task-completed");
+
+      const taskInfoDiv = document.createElement("div");
+      taskInfoDiv.className = "task-info";
+      const cb = document.createElement("input");
+      cb.type = "checkbox";
+      cb.className = "task-check";
+      cb.checked = task.completed;
+      cb.addEventListener("change", (e) => {
+        e.stopPropagation();
+        toggleTaskCompletion(task.id);
+      });
+
+      const textSpan = document.createElement("span");
+      textSpan.className = "task-text";
+      textSpan.innerText = task.name;
+      const metaDiv = document.createElement("div");
+      metaDiv.className = "task-meta";
+      const badgeAssignee = document.createElement("span");
+      badgeAssignee.className = "badge-assignee";
+      let icon = "";
+      if (task.assignee === PARTNER_A) icon = "🙋 ";
+      else if (task.assignee === PARTNER_B) icon = "👤 ";
+      else icon = "👩‍❤️‍👨 ";
+      badgeAssignee.innerText = `${icon}${task.assignee}`;
+      metaDiv.appendChild(badgeAssignee);
+      if (task.dueDate) {
+        const badgeDate = document.createElement("span");
+        badgeDate.className = "badge-date";
+        badgeDate.innerText = formatDueDate(task.dueDate);
+        metaDiv.appendChild(badgeDate);
+      }
+      if (task.completed && task.completedBy) {
+        const completedByBadge = document.createElement("span");
+        completedByBadge.className = "badge-date";
+        completedByBadge.style.background = "#e0f2e9";
+        completedByBadge.innerText = `✔️ hecho por ${task.completedBy}`;
+        metaDiv.appendChild(completedByBadge);
+      }
+      taskInfoDiv.appendChild(cb);
+      taskInfoDiv.appendChild(textSpan);
+      taskInfoDiv.appendChild(metaDiv);
+
+      const actionsDiv = document.createElement("div");
+      actionsDiv.className = "task-actions";
+      const delBtn = document.createElement("button");
+      delBtn.innerHTML = "🗑️";
+      delBtn.className = "delete-btn";
+      delBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        deleteTask(task.id);
+      });
+      actionsDiv.appendChild(delBtn);
+      li.appendChild(taskInfoDiv);
+      li.appendChild(actionsDiv);
+      container.appendChild(li);
+    }
+  }
+
+  function renderAll() {
+    renderStatsAndMonitoring();
+    renderTasksList();
+  }
+
+  // ----- Ideas interactivas (se eliminó "sacar a pasear mascota", se agregó cocinar almuerzo y otras) -----
+  const ideaList = [
+    "Lavar los platos", "Limpiar el polvo", "Organizar armario", "Planchar ropa",
+    "Cocinar cena", "Regar las plantas", "Limpiar cristales", "Cocinar almuerzo",
+    "Cambiar sábanas", "Reciclar residuos", "Limpiar nevera", "Hacer la compra semanal"
+  ];
+
+  function setupIdeas() {
+    const ideasContainer = document.getElementById("ideasContainer");
+    ideasContainer.innerHTML = "";
+    const topIdeas = ideaList.slice(0, 10);
+    topIdeas.forEach(idea => {
+      const chip = document.createElement("div");
+      chip.className = "idea-chip";
+      chip.innerText = idea;
+      chip.addEventListener("click", () => {
+        document.getElementById("taskNameInput").value = idea;
+        document.getElementById("taskNameInput").focus();
+      });
+      ideasContainer.appendChild(chip);
+    });
+  }
+
+  function initForm() {
+    const addBtn = document.getElementById("addTaskBtn");
+    const nameInput = document.getElementById("taskNameInput");
+    const assignSelect = document.getElementById("assigneeSelect");
+    const dateInput = document.getElementById("dueDateInput");
+
+    function handleAdd() {
+      const name = nameInput.value;
+      const assignee = assignSelect.value;
+      const due = dateInput.value;
+      if (!name.trim()) {
+        nameInput.placeholder = "¡Escribe una tarea!";
+        nameInput.style.borderColor = "#e2a0a0";
+        setTimeout(() => {
+          nameInput.style.borderColor = "#e2e8f0";
+          nameInput.placeholder = "Ej: Limpiar cocina, regar plantas...";
+        }, 1200);
+        return;
+      }
+      addTask(name, assignee, due);
+      nameInput.value = "";
+      dateInput.value = "";
+      nameInput.focus();
+    }
+    addBtn.addEventListener("click", handleAdd);
+    nameInput.addEventListener("keypress", (e) => { if (e.key === "Enter") handleAdd(); });
+  }
+
+  function init() {
+    loadFromStorage();
+    initForm();
+    setupIdeas();
+    renderAll();
+  }
+  init();
+</script>
+</body>
+</html>
